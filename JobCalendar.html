@@ -1,0 +1,618 @@
+<html><head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    
+      <link rel="stylesheet" type="text/css" href="https://rawgit.com/rikrdo/Calendar/master/lib/fullcalendar.css">
+        
+      <script type="text/javascript" src="https://rawgit.com/rikrdo/Calendar/master/lib/moment.min.js"></script>
+   
+      <script type="text/javascript" src="https://rawgit.com/rikrdo/Calendar/master/lib/jquery.min.js"></script>
+     
+      <script type="text/javascript" src="https://rawgit.com/rikrdo/Calendar/master/lib/fullcalendar.min.js"></script>
+    
+      <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/qtip2/3.0.3/jquery.qtip.min.css">
+    
+      <script type="text/javascript" src="https://cdn.jsdelivr.net/qtip2/3.0.3/jquery.qtip.min.js"></script>
+    
+      <script type="text/javascript" src="https://code.jquery.com/jquery-migrate-3.0.0.js"></script>
+    
+  <style type="text/css">
+    	body {
+		margin: 10px 10px;
+		padding: 0;
+		font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;
+		font-size: 11px;
+	}
+
+	#calendar {
+		max-width: 1020px;
+		margin: 0 auto;
+	}
+   
+        
+
+  </style>
+  <title></title>
+
+<script type="text/javascript">//<![CDATA[
+
+  $(document).ready(function() {
+  loaded=[];
+setCalendar();
+    //loadJobs();
+  });
+
+var loaded=[];
+
+////Personal
+function loadJobs(fechaInicio,fechaFin)
+{
+var result='';
+fechaInicio=rangofechaFiltros(fechaInicio,"i");
+fechaFin=rangofechaFiltros(fechaFin,"d");
+ $.when(asyncJobs([fechaInicio,fechaFin]),asyncAssets1([fechaInicio,fechaFin]),asyncAssets2([fechaInicio,fechaFin])).done(
+    function(ljob,lassets1,lassets2){
+   
+    console.log("loadJobs");
+
+    var events=[];
+    for(var i in ljob)
+      {
+        var lassets1Aux=lassets1.filter(function (la1) 
+          {
+            return ((la1.field_204_raw.length>0)?la1.field_204_raw[0].id:"") == ljob[i].id;
+          });
+        var lassets2Aux=lassets2.filter(function (la2) 
+          {
+            return ((la2.field_362_raw.length>0)?la2.field_362_raw[0].id:"") == ljob[i].id;
+          });
+        var chains="";
+        var lastChain="";
+        var chainId=1;
+        for(var j in lassets1Aux)
+        {
+              var lassets2Aux2=lassets2Aux.filter(function (la22) 
+            {
+              return ((la22.field_379_raw.length>0)?la22.field_379_raw[0].id:"") == lassets1Aux[j].id;
+            });
+              if(lassets2Aux2.length > 0)
+              {
+                chains=chains+"\nC"+chainId+":"+lassets1Aux[j].field_428_raw;
+                chainId=chainId+1;
+                for(var l in lassets2Aux2)
+                  {
+                    chains=chains+", "+lassets2Aux2[l].field_387_raw;
+                    removeAsset(lassets2Aux,lassets2Aux2[l]);
+                  }
+              }
+              else{
+                lastChain=lastChain+', '+lassets1Aux[j].field_428_raw;
+              }
+        }
+        for(var j in lassets2Aux)
+          {
+              lastChain=lastChain+', '+lassets2Aux[j].field_387_raw;   
+          }
+        chains=chains+((lastChain=="")?"":"\nC"+chainId+":"+lastChain);
+        $.merge(events,generateEvents(fechaInicio,ljob[i],chains));
+      }
+      
+ $('#calendar').fullCalendar('addEventSource', events); 
+    });
+}
+
+
+/////GENERATE EVENTS
+function generateEvents(fechaInicio,ljob,chains)
+{
+  var events=[];
+  //var dmy = fechaInicio.split("/");
+  //var iniweek = new Date(parseInt(dmy[2], 10),parseInt(dmy[0], 10) - 1,parseInt(dmy[1], 10));
+  try{
+
+        var eventName=ljob.field_1_raw+" "+ljob.field_6_raw[0].identifier +", "+ ljob.field_102 +","+ljob.field_277+"\n"+ljob.field_465 +", "+ ljob.field_466;
+        var event1={};
+        event1.title=eventName+"\nTRAVEL\n"+chains;
+        event1.start=formateDate(ljob.field_14_raw.date);
+        event1.color='#257e4a';
+        event1.description=event1.title;
+        
+        var dmy = ljob.field_14_raw.date.split("/");
+        var iniEvent= new Date(parseInt(dmy[2], 10),parseInt(dmy[0], 10) - 1,parseInt(dmy[1], 10));
+        var noWeek=iniEvent.getDay();
+        for(var i = 0; i < noWeek; i++)
+        {
+          iniEvent.setDate(iniEvent.getDate()-1)
+          var eventAux={};
+          eventAux.title=eventName+"\nEMPTY\n"+chains;
+          eventAux.start=iniEvent.getFullYear()+"-"+("0" + (iniEvent.getMonth() + 1)).slice(-2) + "-" +("0" + iniEvent.getDate()).slice(-2);
+          eventAux.color='transparent';
+          eventAux.textColor="transparent";
+          eventAux.description=eventAux.title;
+          events.push(eventAux);
+        }
+
+        var event2={};
+        event2.title=eventName+"\nLOAD IN\n"+chains;
+        event2.start=formateDate(ljob.field_15_raw.date);
+        event2.color='#133CAC';
+        event2.description=event2.title;
+        
+        var event3={};
+        event3.title=eventName+"\nEVENT\n"+chains;
+        event3.start=formateDate(ljob.field_16_raw.date);
+        event3.end=formateDateMas(ljob.field_16_raw.to.date);
+        event3.color='#FF8740';
+        event3.description=event3.title;
+        
+        var event4={};
+        event4.title=eventName+"\nLOAD OUT\n"+chains;
+        event4.start=formateDate(ljob.field_199_raw.date);
+        event4.description=event4.title;
+        
+        var resultBinary=((ljob.field_14_raw.date==ljob.field_15_raw.date)?"1":"0")+
+        ((ljob.field_15_raw.date==ljob.field_16_raw.date)?"1":"0")+
+        ((ljob.field_16_raw.date==ljob.field_16_raw.to.date)?"1":"0")+
+        ((ljob.field_16_raw.to.date==ljob.field_199_raw.date)?"1":"0") ;
+        
+        var resultDec=parseInt( resultBinary, 2 );  
+
+        console.log("binarios: "+resultDec);
+
+
+        if(resultDec==0)
+        {
+          events.push(event1);
+          events.push(event2);
+          events.push(event3);
+          events.push(event4);
+        }
+        else if(resultDec==1) //0001    
+        {
+          events.push(event1);
+          events.push(event2);
+          var dmyAux = ljob.field_16_raw.to.date.split("/");
+          var dateAux= new Date(parseInt(dmyAux[2], 10),parseInt(dmyAux[0], 10) - 1,parseInt(dmyAux[1], 10));
+          dateAux.setDate(dateAux.getDate());//queda igual por diferencia de 1 día
+          event3.end=dateAux.getFullYear()+"-"+("0" + (dateAux.getMonth() + 1)).slice(-2) + "-" +("0" + dateAux.getDate()).slice(-2);
+          event4.title=eventName+"\nEVENT - LOAD OUT\n"+chains; 
+
+          events.push(event3);
+          events.push(event4);
+        }
+
+        else if(resultDec==2) //0010    
+        {
+          events.push(event1);
+          events.push(event2);
+          events.push(event3);
+          events.push(event4);
+        }
+        else if(resultDec==3) //0011    
+        {
+          events.push(event1);
+          events.push(event2);
+          event3.title=eventName+"\nEVENT - LOAD OUT\n"+chains; 
+        }
+        else if(resultDec==4) //0100    
+        {
+          events.push(event1);
+          event2.title=eventName+"\nLOAD IN - EVENT\n"+chains; 
+          events.push(event2);
+            var dmyAux = ljob.field_16_raw.date.split("/");
+            var dateAux= new Date(parseInt(dmyAux[2], 10),parseInt(dmyAux[0], 10) - 1,parseInt(dmyAux[1], 10));
+            dateAux.setDate(dateAux.getDate()+1);
+            event3.start=dateAux.getFullYear()+"-"+("0" + (dateAux.getMonth() + 1)).slice(-2) + "-" +("0" + dateAux.getDate()).slice(-2);
+          events.push(event3);
+          events.push(event4);
+        }
+        else if(resultDec==5) //0101    
+        {
+          events.push(event1);
+          event2.title=eventName+"\nLOAD IN - EVENT\n"+chains; 
+          events.push(event2);
+            var dmyAux = ljob.field_16_raw.date.split("/");
+            var dateAux= new Date(parseInt(dmyAux[2], 10),parseInt(dmyAux[0], 10) - 1,parseInt(dmyAux[1], 10));
+            dateAux.setDate(dateAux.getDate()+1);
+            event3.start=dateAux.getFullYear()+"-"+("0" + (dateAux.getMonth() + 1)).slice(-2) + "-" +("0" + dateAux.getDate()).slice(-2);
+          
+            var dmyAux2 = ljob.field_16_raw.to.date.split("/");
+            var dateAux2= new Date(parseInt(dmyAux2[2], 10),parseInt(dmyAux2[0], 10) - 1,parseInt(dmyAux2[1], 10));
+            dateAux2.setDate(dateAux2.getDate());//queda igual por diferencia de 1 día
+            event3.end=dateAux2.getFullYear()+"-"+("0" + (dateAux2.getMonth() + 1)).slice(-2) + "-" +("0" + dateAux2.getDate()).slice(-2);
+            event4.title=eventName+"\nEVENT - LOAD OUT\n"+chains; 
+
+            if(dateAux.getTime() < dateAux2.getTime())
+              events.push(event3);
+          events.push(event4);
+        }
+
+        else if(resultDec==6) //0110    
+        {
+          events.push(event1);
+          event2.title=eventName+"\nLOAD IN - EVENT\n"+chains; 
+          events.push(event2);
+          events.push(event4);
+        }
+        else if(resultDec==7) //0111    
+        {
+          events.push(event1);
+          event2.title=eventName+"\nLOAD IN - EVENT - LOAD OUT\n"+chains; 
+          events.push(event2);
+        }
+        else if(resultDec==8) //1000    
+        {
+          event1.title=eventName+"\nTRAVEL - LOAD IN\n"+chains; 
+          events.push(event1);
+          events.push(event3);
+          events.push(event4);
+        }
+        else if(resultDec==9) //1001    
+        {
+          event1.title=eventName+"\nTRAVEL - LOAD IN\n"+chains; 
+          events.push(event1);
+            var dmyAux = ljob.field_16_raw.to.date.split("/");
+            var dateAux= new Date(parseInt(dmyAux[2], 10),parseInt(dmyAux[0], 10) - 1,parseInt(dmyAux[1], 10));
+            dateAux.setDate(dateAux.getDate());//queda igual por diferencia de 1 día
+            event3.end=dateAux.getFullYear()+"-"+("0" + (dateAux.getMonth() + 1)).slice(-2) + "-" +("0" + dateAux.getDate()).slice(-2);
+            event4.title=eventName+"\nEVENT - LOAD OUT\n"+chains; 
+          events.push(event3);
+          events.push(event4);
+        }
+
+         else if(resultDec==10) //1010    
+        {
+          event1.title=eventName+"\nTRAVEL - LOAD IN\n"+chains; 
+          events.push(event1);
+          events.push(event3);
+          events.push(event4);
+        }
+
+        else if(resultDec==11) //1011    
+        {
+          event1.title=eventName+"\nTRAVEL - LOAD IN\n"+chains; 
+          events.push(event1);
+          event4.title=eventName+"\nEVENT - LOAD OUT\n"+chains; 
+          events.push(event4);
+        }
+        else if(resultDec==12) //1100    
+        {
+          event1.title=eventName+"\nTRAVEL - LOAD IN - EVENT\n"+chains; 
+          events.push(event1);
+            var dmyAux = ljob.field_16_raw.date.split("/");
+            var dateAux= new Date(parseInt(dmyAux[2], 10),parseInt(dmyAux[0], 10) - 1,parseInt(dmyAux[1], 10));
+            dateAux.setDate(dateAux.getDate()+1);
+            event3.start=dateAux.getFullYear()+"-"+("0" + (dateAux.getMonth() + 1)).slice(-2) + "-" +("0" + dateAux.getDate()).slice(-2);
+          events.push(event3);
+          events.push(event4);
+        }
+        else if(resultDec==13) //1101    
+        {
+          event1.title=eventName+"\nTRAVEL - LOAD IN - EVENT\n"+chains; 
+          events.push(event1);
+            var dmyAux = ljob.field_16_raw.date.split("/");
+            var dateAux= new Date(parseInt(dmyAux[2], 10),parseInt(dmyAux[0], 10) - 1,parseInt(dmyAux[1], 10));
+            dateAux.setDate(dateAux.getDate()+1);
+            event3.start=dateAux.getFullYear()+"-"+("0" + (dateAux.getMonth() + 1)).slice(-2) + "-" +("0" + dateAux.getDate()).slice(-2);
+          
+
+            var dmyAux2 = ljob.field_16_raw.to.date.split("/");
+            var dateAux2= new Date(parseInt(dmyAux2[2], 10),parseInt(dmyAux2[0], 10) - 1,parseInt(dmyAux2[1], 10));
+            dateAux2.setDate(dateAux2.getDate());//queda igual por diferencia de 1 día
+            event3.end=dateAux2.getFullYear()+"-"+("0" + (dateAux2.getMonth() + 1)).slice(-2) + "-" +("0" + dateAux2.getDate()).slice(-2);
+            event4.title=eventName+"\nEVENT - LOAD OUT\n"+chains; 
+
+            if(dateAux.getTime() < dateAux2.getTime())
+              events.push(event3);
+          events.push(event4);
+        }
+        else if(resultDec==14) //1110    
+        {
+          event1.title=eventName+"\nTRAVEL - LOAD IN - EVENT\n"+chains; 
+          events.push(event1);  
+          events.push(event4);
+        }
+        else if(resultDec==15)//1111
+        {
+          event1.title=eventName+"\nTRAVEL - LOAD IN - EVENT - LOAD OUT\n"+chains; 
+          events.push(event1);
+        } 
+        
+        $.merge(events,fillEvent(ljob.field_14_raw.date,ljob.field_15_raw.date,eventName,chains));
+        $.merge(events,fillEvent(ljob.field_15_raw.date,ljob.field_16_raw.date,eventName,chains));
+        $.merge(events,fillEvent(ljob.field_16_raw.to.date,ljob.field_199_raw.date,eventName,chains));
+       
+        dmy = ljob.field_199_raw.date.split("/");
+        iniEvent= new Date(parseInt(dmy[2], 10),parseInt(dmy[0], 10) - 1,parseInt(dmy[1], 10));
+        noWeek=iniEvent.getDay();
+        for(var i = noWeek; i < 6; i++)
+        {
+          iniEvent.setDate(iniEvent.getDate()+1)
+          var eventAux={};
+          eventAux.title=eventName+"\nEMPTY\n"+chains;
+          eventAux.start=iniEvent.getFullYear()+"-"+("0" + (iniEvent.getMonth() + 1)).slice(-2) + "-" +("0" + iniEvent.getDate()).slice(-2);
+          eventAux.color='transparent';
+          eventAux.textColor="transparent";
+          eventAux.description=eventAux.title;
+          events.push(eventAux);
+        }
+      }
+      catch(err) {
+    console.log("Error: "+err.message);
+}
+
+        return events;
+}
+
+///Rellenar espacio vacios
+function fillEvent(fechaInicio,fechaFin,eventName,chains)
+{
+  var events=[];
+    var dmyIn = fechaInicio.split("/");
+    var dateIn= new Date(parseInt(dmyIn[2], 10),parseInt(dmyIn[0], 10) - 1,parseInt(dmyIn[1], 10));
+
+    var dmyFin = fechaFin.split("/");
+    var dateFin= new Date(parseInt(dmyFin[2], 10),parseInt(dmyFin[0], 10) - 1,parseInt(dmyFin[1], 10));
+
+    var timeDiff = Math.abs(dateFin.getTime() - dateIn.getTime());
+    var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
+    if(diffDays>1)
+      for(var i = 0; i < diffDays-1; i++)
+        {
+          dateFin.setDate(dateFin.getDate()-1)
+          var eventAux={};
+          eventAux.title=eventName+"\nEMPTY\n"+chains;
+          eventAux.start=dateFin.getFullYear()+"-"+("0" + (dateFin.getMonth() + 1)).slice(-2) + "-" +("0" + dateFin.getDate()).slice(-2);
+          eventAux.color='transparent';
+          eventAux.textColor="transparent";
+          eventAux.description=eventAux.title;
+          events.push(eventAux);
+      }
+    return events;
+}
+
+/////Remove elements in Asset
+function removeAsset(array,asset) {
+  for(var i = array.length - 1; i >= 0; i--) {
+      if(array[i].id === asset.id) {
+         array.splice(i, 1);
+      }
+  }
+}
+
+////////FECHAS
+function rangofechaFiltros(fecha,extremo){
+    var extr = 0;
+   
+    if (extremo=="i"){extr=-1}
+      
+    var dmy = fecha.split("-");
+  var joindate = new Date(parseInt(dmy[0], 10),parseInt(dmy[1], 10) - 1,parseInt(dmy[2], 10));
+ //  var joindate = new Date(parseInt(dmy[2], 10),parseInt(dmy[1], 10) - 1+extr,parseInt(dmy[0], 10));
+  joindate.setDate(joindate.getDate()+extr);
+  return ("0" + (joindate.getMonth() + 1)).slice(-2) + "/" +("0" + joindate.getDate()).slice(-2) + "/" + joindate.getFullYear();
+  }
+  
+  function formateDate(fecha){
+    var dmy = fecha.split("/");
+    var joindate = new Date(parseInt(dmy[2], 10),parseInt(dmy[0], 10) - 1,parseInt(dmy[1], 10));
+    return joindate.getFullYear()+"-"+("0" + (joindate.getMonth() + 1)).slice(-2) + "-" +("0" + joindate.getDate()).slice(-2) ;
+  }
+
+  function formateDateMas(fecha){
+    var dmy = fecha.split("/");
+    var joindate = new Date(parseInt(dmy[2], 10),parseInt(dmy[0], 10) - 1,parseInt(dmy[1], 10));
+    joindate.setDate(joindate.getDate()+1);
+    return joindate.getFullYear()+"-"+("0" + (joindate.getMonth() + 1)).slice(-2) + "-" +("0" + joindate.getDate()).slice(-2) ;
+  }
+  
+  
+  /////set Calendar
+  function setCalendar(){
+  
+    $('#calendar').fullCalendar({
+          
+        
+            viewRender:function(view,element){
+ $('#calendar').fullCalendar( 'removeEvents');
+ //var events=[{title: "453GOLF CHANNEL, GOLF,16511-6↵Calgary, Alberta↵EVENT↵↵C1:, FW111", start: "2016-09-01", end: "2016-09-03", color: "#FF8740", description: "453GOLF CHANNEL, GOLF,16511-6↵Calgary, Alberta↵EVENT↵↵C1:, FW111"}];
+ //$('#calendar').fullCalendar('addEventSource', events); 
+ loadJobs($('#calendar').fullCalendar('getView').start._d.toJSON().slice(0,10),$('#calendar').fullCalendar('getView').end._d.toJSON().slice(0,10));
+ 
+ /*if($.inArray($('#calendar').fullCalendar('getView').start._d.toJSON().slice(0,10), loaded) == -1 )        
+  {
+  loaded.push($('#calendar').fullCalendar('getView').start._d.toJSON().slice(0,10));
+  
+  }     */     
+            
+            console.log("viewRender");
+            var check = $('#calendar').fullCalendar('getView').intervalStart._d.toJSON().slice(0,8);
+            var today =  new Date().toJSON().slice(0,8);
+           
+            if(check==today)  
+        {
+            $(".fc-week").each(function (index) 
+            {
+                var salir=false;
+                $(this).children(".fc-bg").children("table").find("td.fc-today").each(function (index2) 
+                {
+                    salir=true;
+                })
+                if(salir==true)
+                { 
+                    return false;
+                }
+                $(this).hide();
+                
+            });
+            }
+        
+    },
+// if you want to remove other month's days from view add to css:
+    
+      header: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'month'
+      },
+    
+      businessHours: true, // display business hours
+      editable: false,
+      eventOrder: "-title",
+      events: [
+      
+      ],
+        eventRender: function(event, element) {
+          if(!event.title.includes("\nEMPTY\n"))
+            element.qtip({
+                content: event.title.replace(/\n/g, "<br />"), 
+                position: {
+                        viewport: $(window),
+                        //target: 'mouse',
+                        my: 'bottom center',
+                        at: 'top center',
+                        adjust: {
+                            mouse: false
+                        }
+                    }
+
+            });
+      }
+    });
+    
+  }
+  
+  
+  function showHide(){
+  
+    var check = $('#calendar').fullCalendar('getView').intervalStart._d.toJSON().slice(0,8);
+            var today =  new Date().toJSON().slice(0,8);
+           
+            if(check==today)  
+        {
+            $(".fc-week").each(function (index) 
+            {
+                var salir=false;
+                $(this).children(".fc-bg").children("table").find("td.fc-today").each(function (index2) 
+                {
+                    salir=true;
+                })
+                if(salir==true)
+                {
+                  if($('#showHide').text()=="Show")
+                    $('#showHide').html('Hide');
+                  else
+                     $('#showHide').html('Show');
+                     
+                  return false;
+                }
+                if($('#showHide').text()=="Show")
+                  $(this).show();
+                  
+                else
+                  $(this).hide();
+                                  
+            });
+            }
+  }
+
+
+
+  /////////////JOBS
+function asyncJobs(args) {
+  var dfd = jQuery.Deferred();
+  load(null,1,dfd,requestJobs,args);
+  return dfd.promise();
+}
+
+function requestJobs(fechaInicio,fechaFin,page) {
+  
+ var filters = [{field:'field_14',operator: 'is after',value: fechaInicio,field_name:'Date'},{field:'field_14',operator: 'is before',value: fechaFin,field_name:'Date'}];
+ var api_url ='https://api.knackhq.com/v1/objects/object_1/records';
+ var orderby='&sort_field=field_277&sort_order=asc&rows_per_page=1000&page='+page;
+  
+return sendGet(api_url,filters,orderby);
+}
+/////////////ASSETS 1
+function asyncAssets1(args) {
+  var dfd = jQuery.Deferred();
+  load(null,1,dfd,requestAssets1,args);
+  return dfd.promise();
+}
+
+function requestAssets1(fechaInicio,fechaFin,page) {
+  
+ var filters = [{field:'field_206',operator: 'is after',value: fechaInicio,field_name:'Date'},{field:'field_206',operator: 'is before',value: fechaFin,field_name:'Date'},{field:'field_209',operator: 'is',value: 'Truck'}];
+ var api_url ='https://api.knackhq.com/v1/objects/object_19/records';
+ var orderby='&sort_field=field_362&sort_order=asc&rows_per_page=1000&page='+page;
+  
+return sendGet(api_url,filters,orderby);
+}/////////////ASSETS2
+function asyncAssets2(args) {
+  var dfd = jQuery.Deferred();
+  load(null,1,dfd,requestAssets2,args);
+  return dfd.promise();
+}
+
+function requestAssets2(fechaInicio,fechaFin,page) {
+  
+ var filters = [{field:'field_368',operator: 'is after',value: fechaInicio,field_name:'Date'},{field:'field_368',operator: 'is before',value: fechaFin,field_name:'Date'}];
+ var api_url ='https://api.knackhq.com/v1/objects/object_33/records';
+ var orderby='&sort_field=field_277&sort_order=asc&rows_per_page=1000&page='+page;
+  
+return sendGet(api_url,filters,orderby);
+}
+
+
+///////////////CALL AJAX
+
+function load(results,page,dfd,callback,args)
+{
+dfd.notify( "working... " );
+var argsSend = args.slice();
+argsSend.push(page);
+  $.when(callback.apply(this, argsSend)).done(function(lResult){
+  
+   if(results!=null&&results !=undefined)
+      results.push(lResult.records);
+   else
+      results=lResult.records;
+    if(page<lResult.total_pages)
+    {
+      var currentpage=parseInt(lResult.current_page);
+      load(results,currentpage+1,dfd,callback,args);
+    }
+    else
+    {
+      dfd.resolve( results );
+    }
+    });
+}
+
+function sendGet(api_url,filters) {
+return sendGet(api_url,filters,null);
+}
+
+function sendGet(api_url,filters,orderby) {
+ if(filters!=null)
+    api_url+='?filters='+ encodeURIComponent(JSON.stringify(filters));
+ if(orderby!=null)
+    api_url+=orderby;
+ return $.ajax({
+    url:api_url,
+    async: true,
+    type: 'GET',
+    headers: {
+      'X-Knack-Application-Id': '55ae8f3fe66f333f202713c6',
+      'X-Knack-REST-API-Key': 'ea1b3700-30c9-11e5-a134-6fca44405e70'
+    }
+  });
+}
+
+//]]> 
+</script>
+
+</head>
+<body>
+<button type="button" id="showHide" onclick="showHide()">Show</button>
+	<div id="calendar" ></div>
+</body></html>
