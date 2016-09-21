@@ -9,11 +9,11 @@
      
       <script type="text/javascript" src="https://rawgit.com/rikrdo/Calendar/master/lib/fullcalendar.min.js"></script>
     
-      <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/qtip2/3.0.3/jquery.qtip.min.css">
+      <link rel="stylesheet" type="text/css" href="https://rawgit.com/rikrdo/Calendar/master/lib/jquery.qtip.min.css">
     
-      <script type="text/javascript" src="https://cdn.jsdelivr.net/qtip2/3.0.3/jquery.qtip.min.js"></script>
+      <script type="text/javascript" src="https://rawgit.com/rikrdo/Calendar/master/lib/jquery.qtip.min.js"></script>
     
-      <script type="text/javascript" src="https://code.jquery.com/jquery-migrate-3.0.0.js"></script>
+      <script type="text/javascript" src="https://rawgit.com/rikrdo/Calendar/master/lib/jquery-migrate-3.0.0.js"></script>
     
   <style type="text/css">
     	body {
@@ -126,8 +126,8 @@ function generateEvents(fechaInicio,ljob,chains)
           var eventAux={};
           eventAux.title=eventName+"\nEMPTY\n"+chains;
           eventAux.start=iniEvent.getFullYear()+"-"+("0" + (iniEvent.getMonth() + 1)).slice(-2) + "-" +("0" + iniEvent.getDate()).slice(-2);
-          eventAux.color='transparent';
-          eventAux.textColor="transparent";
+          eventAux.color='#333333';
+          eventAux.textColor="#D0D0D0";
           eventAux.description=eventAux.title;
           events.push(eventAux);
         }
@@ -331,8 +331,8 @@ function generateEvents(fechaInicio,ljob,chains)
           var eventAux={};
           eventAux.title=eventName+"\nEMPTY\n"+chains;
           eventAux.start=iniEvent.getFullYear()+"-"+("0" + (iniEvent.getMonth() + 1)).slice(-2) + "-" +("0" + iniEvent.getDate()).slice(-2);
-          eventAux.color='transparent';
-          eventAux.textColor="transparent";
+          eventAux.color='#1E0000';
+          eventAux.textColor="#D0D0D0";
           eventAux.description=eventAux.title;
           events.push(eventAux);
         }
@@ -363,8 +363,8 @@ function fillEvent(fechaInicio,fechaFin,eventName,chains)
           var eventAux={};
           eventAux.title=eventName+"\nEMPTY\n"+chains;
           eventAux.start=dateFin.getFullYear()+"-"+("0" + (dateFin.getMonth() + 1)).slice(-2) + "-" +("0" + dateFin.getDate()).slice(-2);
-          eventAux.color='transparent';
-          eventAux.textColor="transparent";
+          eventAux.color='#642869';
+          eventAux.textColor="#D0D0D0";
           eventAux.description=eventAux.title;
           events.push(eventAux);
       }
