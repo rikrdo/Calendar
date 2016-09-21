@@ -36,6 +36,7 @@
 <script type="text/javascript">//<![CDATA[
 
   $(document).ready(function() {
+
   loaded=[];
 setCalendar();
     //loadJobs();
@@ -448,13 +449,13 @@ function rangofechaFiltros(fecha,extremo){
         
     },
 // if you want to remove other month's days from view add to css:
-    
+    height: 'auto',
       header: {
         left: 'prev,next today',
         center: 'title',
         right: 'month'
       },
-    
+	
       businessHours: true, // display business hours
       editable: false,
       eventOrder: "-title",
