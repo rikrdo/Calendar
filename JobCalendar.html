@@ -37,12 +37,14 @@
 
   $(document).ready(function() {
 
-  loaded=[];
+  loadedEnd=[];
+  loadedStart=[];
 setCalendar();
     //loadJobs();
   });
 
-var loaded=[];
+var loadedEnd=[];
+var loadedStart=[];
 
 ////Personal
 function loadJobs(fechaInicio,fechaFin)
@@ -361,6 +363,8 @@ function fillEvent(fechaInicio,fechaFin,eventName,chains)
       for(var i = 0; i < diffDays-1; i++)
         {
           dateFin.setDate(dateFin.getDate()-1)
+		  if(dateFin.getTime()==dateIn.getTime())
+				break;
           var eventAux={};
           eventAux.title=eventName+"\nEMPTY\n"+chains;
           eventAux.start=dateFin.getFullYear()+"-"+("0" + (dateFin.getMonth() + 1)).slice(-2) + "-" +("0" + dateFin.getDate()).slice(-2);
@@ -415,10 +419,22 @@ function rangofechaFiltros(fecha,extremo){
           
         
             viewRender:function(view,element){
- $('#calendar').fullCalendar( 'removeEvents');
- //var events=[{title: "453GOLF CHANNEL, GOLF,16511-6↵Calgary, Alberta↵EVENT↵↵C1:, FW111", start: "2016-09-01", end: "2016-09-03", color: "#FF8740", description: "453GOLF CHANNEL, GOLF,16511-6↵Calgary, Alberta↵EVENT↵↵C1:, FW111"}];
+ //$('#calendar').fullCalendar( 'removeEvents');
+ 
+ if($.inArray($('#calendar').fullCalendar('getView').end._d.getTime(), loadedEnd) == -1 )        
+  {	
+	
+	console.log("Op {New} Start:"+$('#calendar').fullCalendar('getView').intervalStart._d.toJSON().slice(0,10)+" END:"+$('#calendar').fullCalendar('getView').intervalEnd._d.toJSON().slice(0,10));
+	
+	loadJobs($('#calendar').fullCalendar('getView').intervalStart._d.toJSON().slice(0,10),$('#calendar').fullCalendar('getView').intervalEnd._d.toJSON().slice(0,10));
+	
+	loadedEnd.push($('#calendar').fullCalendar('getView').end._d.getTime());
+	loadedStart.push($('#calendar').fullCalendar('getView').start._d.getTime());
+	
+	//loadJobs($('#calendar').fullCalendar('getView').start._d.toJSON().slice(0,10),$('#calendar').fullCalendar('getView').end._d.toJSON().slice(0,10));
+  }
  //$('#calendar').fullCalendar('addEventSource', events); 
- loadJobs($('#calendar').fullCalendar('getView').start._d.toJSON().slice(0,10),$('#calendar').fullCalendar('getView').end._d.toJSON().slice(0,10));
+ //loadJobs($('#calendar').fullCalendar('getView').start._d.toJSON().slice(0,10),$('#calendar').fullCalendar('getView').end._d.toJSON().slice(0,10));
  
  /*if($.inArray($('#calendar').fullCalendar('getView').start._d.toJSON().slice(0,10), loaded) == -1 )        
   {
