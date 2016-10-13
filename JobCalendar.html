@@ -27,6 +27,14 @@
 		max-width: 1500px;
 		margin: 0 auto;
 	}
+	.fc-day-number{
+	font-size: 26px;
+	font-weight: bold;
+	}
+	.fc-content-skeleton{
+	border-style: solid none none none;
+	border-width: 15px;
+	}
    
         
 
@@ -79,7 +87,7 @@ fechaFin=rangofechaFiltros(fechaFin,"d");
             });
               if(lassets2Aux2.length > 0)
               {
-                chains=chains+"\nC"+chainId+":"+lassets1Aux[j].field_428_raw;
+                chains=chains+"<br>C"+chainId+":"+lassets1Aux[j].field_428_raw;
                 chainId=chainId+1;
                 for(var l in lassets2Aux2)
                   {
@@ -95,7 +103,7 @@ fechaFin=rangofechaFiltros(fechaFin,"d");
           {
               lastChain=lastChain+', '+lassets2Aux[j].field_387_raw;   
           }
-        chains=chains+((lastChain=="")?"":"\nC"+chainId+":"+lastChain);
+        chains=chains+((lastChain=="")?"":"<br>C"+chainId+":"+lastChain);
         $.merge(events,generateEvents(fechaInicio,ljob[i],chains));
       }
       
@@ -112,11 +120,12 @@ function generateEvents(fechaInicio,ljob,chains)
   //var iniweek = new Date(parseInt(dmy[2], 10),parseInt(dmy[0], 10) - 1,parseInt(dmy[1], 10));
   try{
 
-        var eventName=ljob.field_1_raw+" "+ljob.field_6_raw[0].identifier +", "+ ljob.field_102 +","+ljob.field_277+"\n"+ljob.field_465 +", "+ ljob.field_466;
+        var eventName="<span style=\"display:none;\">"+ljob.field_1_raw+"</span>"+ljob.field_6_raw[0].identifier +", "+ ljob.field_102 +","+ljob.field_277+"<br>"+ljob.field_465 +", "+ ljob.field_466;
         var event1={};
-        event1.title=eventName+"\nTRAVEL\n"+chains;
+        event1.title=eventName+"<br>TRAVEL<br>"+chains;
         event1.start=formateDate(ljob.field_14_raw.date);
-        event1.color='#257e4a';
+		var colorEvent=getColorJob(ljob.field_201_raw[0].identifier);
+        event1.color=colorEvent;//'#257e4a';
         event1.description=event1.title;
         
         var dmy = ljob.field_14_raw.date.split("/");
@@ -126,7 +135,7 @@ function generateEvents(fechaInicio,ljob,chains)
         {
           iniEvent.setDate(iniEvent.getDate()-1)
           var eventAux={};
-          eventAux.title=eventName+"\nEMPTY\n"+chains;
+          eventAux.title=eventName+"<br>EMPTY<br>"+chains;
           eventAux.start=iniEvent.getFullYear()+"-"+("0" + (iniEvent.getMonth() + 1)).slice(-2) + "-" +("0" + iniEvent.getDate()).slice(-2);
           eventAux.color='#333333';
           eventAux.textColor="#D0D0D0";
@@ -135,21 +144,22 @@ function generateEvents(fechaInicio,ljob,chains)
         }
 
         var event2={};
-        event2.title=eventName+"\nLOAD IN\n"+chains;
+        event2.title=eventName+"<br>LOAD IN<br>"+chains;
         event2.start=formateDate(ljob.field_15_raw.date);
-        event2.color='#133CAC';
+        event2.color=colorEvent;//'#133CAC';
         event2.description=event2.title;
         
         var event3={};
-        event3.title=eventName+"\nEVENT\n"+chains;
+        event3.title=eventName+"<br>EVENT<br>"+chains;
         event3.start=formateDate(ljob.field_16_raw.date);
         event3.end=formateDateMas(ljob.field_16_raw.to.date);
-        event3.color='#FF8740';
+        event3.color=colorEvent;//'#FF8740';
         event3.description=event3.title;
         
         var event4={};
-        event4.title=eventName+"\nLOAD OUT\n"+chains;
+        event4.title=eventName+"<br>LOAD OUT<br>"+chains;
         event4.start=formateDate(ljob.field_199_raw.date);
+		event4.color=colorEvent;
         event4.description=event4.title;
         
         var resultBinary=((ljob.field_14_raw.date==ljob.field_15_raw.date)?"1":"0")+
@@ -177,7 +187,7 @@ function generateEvents(fechaInicio,ljob,chains)
           var dateAux= new Date(parseInt(dmyAux[2], 10),parseInt(dmyAux[0], 10) - 1,parseInt(dmyAux[1], 10));
           dateAux.setDate(dateAux.getDate());//queda igual por diferencia de 1 día
           event3.end=dateAux.getFullYear()+"-"+("0" + (dateAux.getMonth() + 1)).slice(-2) + "-" +("0" + dateAux.getDate()).slice(-2);
-          event4.title=eventName+"\nEVENT - LOAD OUT\n"+chains; 
+          event4.title=eventName+"<br>EVENT - LOAD OUT<br>"+chains; 
 
           events.push(event3);
           events.push(event4);
@@ -194,13 +204,13 @@ function generateEvents(fechaInicio,ljob,chains)
         {
           events.push(event1);
           events.push(event2);
-          event4.title=eventName+"\nEVENT - LOAD OUT\n"+chains; 
+          event4.title=eventName+"<br>EVENT - LOAD OUT<br>"+chains; 
 		  events.push(event4);
         }
         else if(resultDec==4) //0100    
         {
           events.push(event1);
-          event2.title=eventName+"\nLOAD IN - EVENT\n"+chains; 
+          event2.title=eventName+"<br>LOAD IN - EVENT<br>"+chains; 
           events.push(event2);
             var dmyAux = ljob.field_16_raw.date.split("/");
             var dateAux= new Date(parseInt(dmyAux[2], 10),parseInt(dmyAux[0], 10) - 1,parseInt(dmyAux[1], 10));
@@ -212,7 +222,7 @@ function generateEvents(fechaInicio,ljob,chains)
         else if(resultDec==5) //0101    
         {
           events.push(event1);
-          event2.title=eventName+"\nLOAD IN - EVENT\n"+chains; 
+          event2.title=eventName+"<br>LOAD IN - EVENT<br>"+chains; 
           events.push(event2);
             var dmyAux = ljob.field_16_raw.date.split("/");
             var dateAux= new Date(parseInt(dmyAux[2], 10),parseInt(dmyAux[0], 10) - 1,parseInt(dmyAux[1], 10));
@@ -223,7 +233,7 @@ function generateEvents(fechaInicio,ljob,chains)
             var dateAux2= new Date(parseInt(dmyAux2[2], 10),parseInt(dmyAux2[0], 10) - 1,parseInt(dmyAux2[1], 10));
             dateAux2.setDate(dateAux2.getDate());//queda igual por diferencia de 1 día
             event3.end=dateAux2.getFullYear()+"-"+("0" + (dateAux2.getMonth() + 1)).slice(-2) + "-" +("0" + dateAux2.getDate()).slice(-2);
-            event4.title=eventName+"\nEVENT - LOAD OUT\n"+chains; 
+            event4.title=eventName+"<br>EVENT - LOAD OUT<br>"+chains; 
 
             if(dateAux.getTime() < dateAux2.getTime())
               events.push(event3);
@@ -233,39 +243,39 @@ function generateEvents(fechaInicio,ljob,chains)
         else if(resultDec==6) //0110    
         {
           events.push(event1);
-          event2.title=eventName+"\nLOAD IN - EVENT\n"+chains; 
+          event2.title=eventName+"<br>LOAD IN - EVENT<br>"+chains; 
           events.push(event2);
           events.push(event4);
         }
         else if(resultDec==7) //0111    
         {
           events.push(event1);
-          event2.title=eventName+"\nLOAD IN - EVENT - LOAD OUT\n"+chains; 
+          event2.title=eventName+"<br>LOAD IN - EVENT - LOAD OUT<br>"+chains; 
           events.push(event2);
         }
         else if(resultDec==8) //1000    
         {
-          event1.title=eventName+"\nTRAVEL - LOAD IN\n"+chains; 
+          event1.title=eventName+"<br>TRAVEL - LOAD IN<br>"+chains; 
           events.push(event1);
           events.push(event3);
           events.push(event4);
         }
         else if(resultDec==9) //1001    
         {
-          event1.title=eventName+"\nTRAVEL - LOAD IN\n"+chains; 
+          event1.title=eventName+"<br>TRAVEL - LOAD IN<br>"+chains; 
           events.push(event1);
             var dmyAux = ljob.field_16_raw.to.date.split("/");
             var dateAux= new Date(parseInt(dmyAux[2], 10),parseInt(dmyAux[0], 10) - 1,parseInt(dmyAux[1], 10));
             dateAux.setDate(dateAux.getDate());//queda igual por diferencia de 1 día
             event3.end=dateAux.getFullYear()+"-"+("0" + (dateAux.getMonth() + 1)).slice(-2) + "-" +("0" + dateAux.getDate()).slice(-2);
-            event4.title=eventName+"\nEVENT - LOAD OUT\n"+chains; 
+            event4.title=eventName+"<br>EVENT - LOAD OUT<br>"+chains; 
           events.push(event3);
           events.push(event4);
         }
 
          else if(resultDec==10) //1010    
         {
-          event1.title=eventName+"\nTRAVEL - LOAD IN\n"+chains; 
+          event1.title=eventName+"<br>TRAVEL - LOAD IN<br>"+chains; 
           events.push(event1);
           events.push(event3);
           events.push(event4);
@@ -273,14 +283,14 @@ function generateEvents(fechaInicio,ljob,chains)
 
         else if(resultDec==11) //1011    
         {
-          event1.title=eventName+"\nTRAVEL - LOAD IN\n"+chains; 
+          event1.title=eventName+"<br>TRAVEL - LOAD IN<br>"+chains; 
           events.push(event1);
-          event4.title=eventName+"\nEVENT - LOAD OUT\n"+chains; 
+          event4.title=eventName+"<br>EVENT - LOAD OUT<br>"+chains; 
           events.push(event4);
         }
         else if(resultDec==12) //1100    
         {
-          event1.title=eventName+"\nTRAVEL - LOAD IN - EVENT\n"+chains; 
+          event1.title=eventName+"<br>TRAVEL - LOAD IN - EVENT<br>"+chains; 
           events.push(event1);
             var dmyAux = ljob.field_16_raw.date.split("/");
             var dateAux= new Date(parseInt(dmyAux[2], 10),parseInt(dmyAux[0], 10) - 1,parseInt(dmyAux[1], 10));
@@ -291,7 +301,7 @@ function generateEvents(fechaInicio,ljob,chains)
         }
         else if(resultDec==13) //1101    
         {
-          event1.title=eventName+"\nTRAVEL - LOAD IN - EVENT\n"+chains; 
+          event1.title=eventName+"<br>TRAVEL - LOAD IN - EVENT<br>"+chains; 
           events.push(event1);
             var dmyAux = ljob.field_16_raw.date.split("/");
             var dateAux= new Date(parseInt(dmyAux[2], 10),parseInt(dmyAux[0], 10) - 1,parseInt(dmyAux[1], 10));
@@ -303,7 +313,7 @@ function generateEvents(fechaInicio,ljob,chains)
             var dateAux2= new Date(parseInt(dmyAux2[2], 10),parseInt(dmyAux2[0], 10) - 1,parseInt(dmyAux2[1], 10));
             dateAux2.setDate(dateAux2.getDate());//queda igual por diferencia de 1 día
             event3.end=dateAux2.getFullYear()+"-"+("0" + (dateAux2.getMonth() + 1)).slice(-2) + "-" +("0" + dateAux2.getDate()).slice(-2);
-            event4.title=eventName+"\nEVENT - LOAD OUT\n"+chains; 
+            event4.title=eventName+"<br>EVENT - LOAD OUT<br>"+chains; 
 
             if(dateAux.getTime() < dateAux2.getTime())
               events.push(event3);
@@ -311,13 +321,13 @@ function generateEvents(fechaInicio,ljob,chains)
         }
         else if(resultDec==14) //1110    
         {
-          event1.title=eventName+"\nTRAVEL - LOAD IN - EVENT\n"+chains; 
+          event1.title=eventName+"<br>TRAVEL - LOAD IN - EVENT<br>"+chains; 
           events.push(event1);  
           events.push(event4);
         }
         else if(resultDec==15)//1111
         {
-          event1.title=eventName+"\nTRAVEL - LOAD IN - EVENT - LOAD OUT\n"+chains; 
+          event1.title=eventName+"<br>TRAVEL - LOAD IN - EVENT - LOAD OUT<br>"+chains; 
           events.push(event1);
         } 
         
@@ -332,7 +342,7 @@ function generateEvents(fechaInicio,ljob,chains)
         {
           iniEvent.setDate(iniEvent.getDate()+1)
           var eventAux={};
-          eventAux.title=eventName+"\nEMPTY\n"+chains;
+          eventAux.title=eventName+"<br>EMPTY<br>"+chains;
           eventAux.start=iniEvent.getFullYear()+"-"+("0" + (iniEvent.getMonth() + 1)).slice(-2) + "-" +("0" + iniEvent.getDate()).slice(-2);
           eventAux.color='#1E0000';
           eventAux.textColor="#D0D0D0";
@@ -347,6 +357,49 @@ function generateEvents(fechaInicio,ljob,chains)
         return events;
 }
 
+
+function getColorJob(status)
+{
+	var color="#333333";
+	if(status=="Tentative")
+	{
+		color="#d40000";
+	}
+	else if(status=="Confirmed")
+	{
+		color="#3150c7";
+	}
+	else if(status=="Job Ready")
+	{
+		color="#52991e";
+	}
+	else if(status=="Job In Progress")
+	{
+		color="#52991e";
+	}
+	else if(status=="Job Review")
+	{
+		color="#f78383";
+	}
+	else if(status=="To Be Billed")
+	{
+		color="#f78383";
+	}
+	else if(status=="Invoice Review")
+	{
+		color="#060505";
+	}
+	else if(status=="Invoice Approved")
+	{
+		color="#060505";
+	}
+	else if(status=="Job Closed")
+	{
+		color="#060505";
+	}
+
+	return color;
+}
 ///Rellenar espacio vacios
 function fillEvent(fechaInicio,fechaFin,eventName,chains)
 {
@@ -366,7 +419,7 @@ function fillEvent(fechaInicio,fechaFin,eventName,chains)
 		  if(dateFin.getTime()==dateIn.getTime())
 				break;
           var eventAux={};
-          eventAux.title=eventName+"\nEMPTY\n"+chains;
+          eventAux.title=eventName+"<br>EMPTY<br>"+chains;
           eventAux.start=dateFin.getFullYear()+"-"+("0" + (dateFin.getMonth() + 1)).slice(-2) + "-" +("0" + dateFin.getDate()).slice(-2);
           eventAux.color='#642869';
           eventAux.textColor="#D0D0D0";
@@ -480,7 +533,8 @@ function rangofechaFiltros(fecha,extremo){
       
       ],
         eventRender: function(event, element) {
-          if(!event.title.includes("\nEMPTY\n"))
+		element.find('.fc-title').html(event.title);
+          if(!event.title.includes("<br>EMPTY<br>"))
             element.qtip({
                 content: event.title.replace(/\n/g, "<br />"), 
                 position: {
