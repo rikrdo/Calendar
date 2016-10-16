@@ -96,12 +96,12 @@ fechaFin=rangofechaFiltros(fechaFin,"d");
                   }
               }
               else{
-                lastChain=lastChain+', '+lassets1Aux[j].field_428_raw;
+                lastChain=((lastChain=="")?"":(lastChain+', '))+lassets1Aux[j].field_428_raw;
               }
         }
         for(var j in lassets2Aux)
           {
-              lastChain=lastChain+', '+lassets2Aux[j].field_387_raw;   
+              lastChain=((lastChain=="")?"":(lastChain+', '))+lassets2Aux[j].field_387_raw;   
           }
         chains=chains+((lastChain=="")?"":"<br>C"+chainId+":"+lastChain);
         $.merge(events,generateEvents(fechaInicio,ljob[i],chains));
