@@ -429,6 +429,34 @@ function fillEvent(fechaInicio,fechaFin,eventName,chains)
     return events;
 }
 
+///Rellenar espacio vacios
+function fillEventDays(fechaInicio,fechaFin,eventName,chains)
+{
+  var events=[];
+    var dmyIn = fechaInicio.split("/");
+    var dateIn= new Date(parseInt(dmyIn[2], 10),parseInt(dmyIn[0], 10) - 1,parseInt(dmyIn[1], 10));
+
+    var dmyFin = fechaFin.split("/");
+    var dateFin= new Date(parseInt(dmyFin[2], 10),parseInt(dmyFin[0], 10) - 1,parseInt(dmyFin[1], 10));
+
+    var timeDiff = Math.abs(dateFin.getTime() - dateIn.getTime());
+    var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
+    if(diffDays>1)
+      for(var i = 0; i < diffDays-1; i++)
+        {
+          dateFin.setDate(dateFin.getDate()-1)
+		  if(dateFin.getTime()==dateIn.getTime())
+				break;
+          var eventAux={};
+          eventAux.title=eventName+"<br>EMPTY<br>"+chains;
+          eventAux.start=dateFin.getFullYear()+"-"+("0" + (dateFin.getMonth() + 1)).slice(-2) + "-" +("0" + dateFin.getDate()).slice(-2);
+          eventAux.color='#642869';
+          eventAux.textColor="#D0D0D0";
+          eventAux.description=eventAux.title;
+          events.push(eventAux);
+      }
+    return events;
+}
 /////Remove elements in Asset
 function removeAsset(array,asset) {
   for(var i = array.length - 1; i >= 0; i--) {
@@ -548,6 +576,9 @@ function rangofechaFiltros(fecha,extremo){
                     }
 
             });
+        	else
+        		element.hide();//element.find('.fc-title').html("");
+
       }
     });
     
