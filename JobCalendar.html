@@ -119,12 +119,12 @@ function generateEvents(fechaInicio,ljob,chains)
   //var dmy = fechaInicio.split("/");
   //var iniweek = new Date(parseInt(dmy[2], 10),parseInt(dmy[0], 10) - 1,parseInt(dmy[1], 10));
   try{
-
-        var eventName="<span style=\"display:none;\">"+ljob.field_1_raw+"</span>"+ljob.field_6_raw[0].identifier +", "+ ljob.field_102 +","+ljob.field_277+"<br>"+ljob.field_465 +", "+ ljob.field_466;
+		//"<span style=\"display:none;\">"+
+        var eventName="<span style=\"display:none;\">"+ljob.field_1_raw+"</span>"+((ljob.field_6_raw.length==0)?"":ljob.field_6_raw[0].identifier)+", "+ ljob.field_102 +","+ljob.field_277+"<br>"+ljob.field_465 +", "+ ljob.field_466;
         var event1={};
         event1.title=eventName+"<br>TRAVEL<br>"+chains;
         event1.start=formateDate(ljob.field_14_raw.date);
-		var colorEvent=getColorJob(ljob.field_201_raw[0].identifier);
+		var colorEvent=getColorJob(((ljob.field_201_raw.length==0)?"":ljob.field_201_raw[0].identifier));
         event1.color=colorEvent;//'#257e4a';
         event1.description=event1.title;
         
@@ -169,14 +169,15 @@ function generateEvents(fechaInicio,ljob,chains)
         
         var resultDec=parseInt( resultBinary, 2 );  
 
-        console.log("binarios: "+resultDec);
+        //console.log("binarios: "+resultDec);
 
 
         if(resultDec==0)
         {
           events.push(event1);
           events.push(event2);
-          events.push(event3);
+          //events.push(event3);
+		  $.merge(events,fillEventDays(ljob.field_16_raw.date,ljob.field_16_raw.to.date,eventName,chains,colorEvent,0,0));
           events.push(event4);
         }
         else if(resultDec==1) //0001    
@@ -187,9 +188,11 @@ function generateEvents(fechaInicio,ljob,chains)
           var dateAux= new Date(parseInt(dmyAux[2], 10),parseInt(dmyAux[0], 10) - 1,parseInt(dmyAux[1], 10));
           dateAux.setDate(dateAux.getDate());//queda igual por diferencia de 1 día
           event3.end=dateAux.getFullYear()+"-"+("0" + (dateAux.getMonth() + 1)).slice(-2) + "-" +("0" + dateAux.getDate()).slice(-2);
+		  
           event4.title=eventName+"<br>EVENT - LOAD OUT<br>"+chains; 
 
-          events.push(event3);
+          //events.push(event3);
+		  $.merge(events,fillEventDays(ljob.field_16_raw.date,ljob.field_16_raw.to.date,eventName,chains,colorEvent,0,-1));
           events.push(event4);
         }
 
@@ -197,7 +200,8 @@ function generateEvents(fechaInicio,ljob,chains)
         {
           events.push(event1);
           events.push(event2);
-          events.push(event3);
+          //events.push(event3);
+		  $.merge(events,fillEventDays(ljob.field_16_raw.date,ljob.field_16_raw.to.date,eventName,chains,colorEvent,1,-1));
           events.push(event4);
         }
         else if(resultDec==3) //0011    
@@ -216,7 +220,8 @@ function generateEvents(fechaInicio,ljob,chains)
             var dateAux= new Date(parseInt(dmyAux[2], 10),parseInt(dmyAux[0], 10) - 1,parseInt(dmyAux[1], 10));
             dateAux.setDate(dateAux.getDate()+1);
             event3.start=dateAux.getFullYear()+"-"+("0" + (dateAux.getMonth() + 1)).slice(-2) + "-" +("0" + dateAux.getDate()).slice(-2);
-          events.push(event3);
+          //events.push(event3);
+		   $.merge(events,fillEventDays(ljob.field_16_raw.date,ljob.field_16_raw.to.date,eventName,chains,colorEvent,1,0));
           events.push(event4);
         }
         else if(resultDec==5) //0101    
@@ -236,7 +241,7 @@ function generateEvents(fechaInicio,ljob,chains)
             event4.title=eventName+"<br>EVENT - LOAD OUT<br>"+chains; 
 
             if(dateAux.getTime() < dateAux2.getTime())
-              events.push(event3);
+              $.merge(events,fillEventDays(ljob.field_16_raw.date,ljob.field_16_raw.to.date,eventName,chains,colorEvent,1,-1));//events.push(event3);
           events.push(event4);
         }
 
@@ -257,7 +262,8 @@ function generateEvents(fechaInicio,ljob,chains)
         {
           event1.title=eventName+"<br>TRAVEL - LOAD IN<br>"+chains; 
           events.push(event1);
-          events.push(event3);
+          //events.push(event3);
+		  $.merge(events,fillEventDays(ljob.field_16_raw.date,ljob.field_16_raw.to.date,eventName,chains,colorEvent,0,0));
           events.push(event4);
         }
         else if(resultDec==9) //1001    
@@ -269,7 +275,8 @@ function generateEvents(fechaInicio,ljob,chains)
             dateAux.setDate(dateAux.getDate());//queda igual por diferencia de 1 día
             event3.end=dateAux.getFullYear()+"-"+("0" + (dateAux.getMonth() + 1)).slice(-2) + "-" +("0" + dateAux.getDate()).slice(-2);
             event4.title=eventName+"<br>EVENT - LOAD OUT<br>"+chains; 
-          events.push(event3);
+          //events.push(event3);
+		  $.merge(events,fillEventDays(ljob.field_16_raw.date,ljob.field_16_raw.to.date,eventName,chains,colorEvent,0,-1));
           events.push(event4);
         }
 
@@ -277,7 +284,8 @@ function generateEvents(fechaInicio,ljob,chains)
         {
           event1.title=eventName+"<br>TRAVEL - LOAD IN<br>"+chains; 
           events.push(event1);
-          events.push(event3);
+          //events.push(event3);
+		  $.merge(events,fillEventDays(ljob.field_16_raw.date,ljob.field_16_raw.to.date,eventName,chains,colorEvent,0,0));
           events.push(event4);
         }
 
@@ -296,7 +304,8 @@ function generateEvents(fechaInicio,ljob,chains)
             var dateAux= new Date(parseInt(dmyAux[2], 10),parseInt(dmyAux[0], 10) - 1,parseInt(dmyAux[1], 10));
             dateAux.setDate(dateAux.getDate()+1);
             event3.start=dateAux.getFullYear()+"-"+("0" + (dateAux.getMonth() + 1)).slice(-2) + "-" +("0" + dateAux.getDate()).slice(-2);
-          events.push(event3);
+          //events.push(event3);
+		  $.merge(events,fillEventDays(ljob.field_16_raw.date,ljob.field_16_raw.to.date,eventName,chains,colorEvent,1,0));
           events.push(event4);
         }
         else if(resultDec==13) //1101    
@@ -316,7 +325,7 @@ function generateEvents(fechaInicio,ljob,chains)
             event4.title=eventName+"<br>EVENT - LOAD OUT<br>"+chains; 
 
             if(dateAux.getTime() < dateAux2.getTime())
-              events.push(event3);
+              $.merge(events,fillEventDays(ljob.field_16_raw.date,ljob.field_16_raw.to.date,eventName,chains,colorEvent,1,-1));//events.push(event3);
           events.push(event4);
         }
         else if(resultDec==14) //1110    
@@ -360,7 +369,8 @@ function generateEvents(fechaInicio,ljob,chains)
 
 function getColorJob(status)
 {
-	var color="#333333";
+	var color="#DFEC27";
+	
 	if(status=="Tentative")
 	{
 		color="#d40000";
@@ -368,6 +378,10 @@ function getColorJob(status)
 	else if(status=="Confirmed")
 	{
 		color="#3150c7";
+	}
+	else if(status=="Cancelled")
+	{
+		color="#6E6F64";
 	}
 	else if(status=="Job Ready")
 	{
@@ -409,7 +423,11 @@ function fillEvent(fechaInicio,fechaFin,eventName,chains)
 
     var dmyFin = fechaFin.split("/");
     var dateFin= new Date(parseInt(dmyFin[2], 10),parseInt(dmyFin[0], 10) - 1,parseInt(dmyFin[1], 10));
-
+	
+	if(dateFin.getTime()<dateIn.getTime())
+	{
+		console.log("ERROR fillEvent : "+eventName);
+	}
     var timeDiff = Math.abs(dateFin.getTime() - dateIn.getTime());
     var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
     if(diffDays>1)
@@ -430,31 +448,51 @@ function fillEvent(fechaInicio,fechaFin,eventName,chains)
 }
 
 ///Rellenar espacio vacios
-function fillEventDays(fechaInicio,fechaFin,eventName,chains)
+function fillEventDays(fechaInicio,fechaFin,eventName,chains,colorEvent,mvInit,mvLast)
 {
   var events=[];
-    var dmyIn = fechaInicio.split("/");
+  
+   var dmyIn = fechaInicio.split("/");
     var dateIn= new Date(parseInt(dmyIn[2], 10),parseInt(dmyIn[0], 10) - 1,parseInt(dmyIn[1], 10));
-
+	
+	
     var dmyFin = fechaFin.split("/");
     var dateFin= new Date(parseInt(dmyFin[2], 10),parseInt(dmyFin[0], 10) - 1,parseInt(dmyFin[1], 10));
-
-    var timeDiff = Math.abs(dateFin.getTime() - dateIn.getTime());
-    var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
-    if(diffDays>1)
-      for(var i = 0; i < diffDays-1; i++)
-        {
-          dateFin.setDate(dateFin.getDate()-1)
-		  if(dateFin.getTime()==dateIn.getTime())
-				break;
-          var eventAux={};
-          eventAux.title=eventName+"<br>EMPTY<br>"+chains;
+	
+	if(dateFin.getTime()<dateIn.getTime())
+	{
+		console.log("ERROR fillEventDays: "+eventName);
+	}
+  if(fechaInicio==fechaFin)
+  {
+		var eventAux={};
+          eventAux.title=eventName+"<br>EVENT<br>"+chains;
           eventAux.start=dateFin.getFullYear()+"-"+("0" + (dateFin.getMonth() + 1)).slice(-2) + "-" +("0" + dateFin.getDate()).slice(-2);
-          eventAux.color='#642869';
-          eventAux.textColor="#D0D0D0";
+          eventAux.color=colorEvent;
           eventAux.description=eventAux.title;
           events.push(eventAux);
+  }
+  else{
+	dateIn.setDate(dateIn.getDate()+mvInit);
+	dateFin.setDate(dateFin.getDate()+mvLast);
+	 var timeDiff = Math.abs(dateFin.getTime() - dateIn.getTime());
+    var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
+   
+      for(var i = 0; i < diffDays+1; i++)
+        {
+          
+          var eventAux={};
+          eventAux.title=eventName+"<br>EVENT<br>"+chains;
+          eventAux.start=dateFin.getFullYear()+"-"+("0" + (dateFin.getMonth() + 1)).slice(-2) + "-" +("0" + dateFin.getDate()).slice(-2);
+          eventAux.color=colorEvent;
+          eventAux.description=eventAux.title;
+          events.push(eventAux);
+		  dateFin.setDate(dateFin.getDate()-1)
+		  if(dateFin.getTime()<dateIn.getTime())
+				break;
       }
+  }
+   
     return events;
 }
 /////Remove elements in Asset
