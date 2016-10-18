@@ -696,7 +696,7 @@ function asyncAssets2(args) {
 
 function requestAssets2(fechaInicio,fechaFin,page) {
   
- var filters = [{field:'field_368',operator: 'is after',value: fechaInicio,field_name:'Date'},{field:'field_368',operator: 'is before',value: fechaFin,field_name:'Date'}];
+ var filters = [{field:'field_368',operator: 'is after',value: fechaInicio,field_name:'Date'},{field:'field_368',operator: 'is before',value: fechaFin,field_name:'Date'},{field:'field_363',operator:'is not',value:'Truck',field_name:'Asset'}];
  var api_url ='https://api.knackhq.com/v1/objects/object_33/records';
  var orderby='&sort_field=field_277&sort_order=asc&rows_per_page=1000&page='+page;
   
